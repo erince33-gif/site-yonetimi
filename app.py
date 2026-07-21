@@ -5,6 +5,26 @@ from datetime import datetime
 
 st.set_page_config(page_title="Site Sakini Bilgi Sistemi", page_icon="🏢", layout="centered")
 
+EXCEL_FILE = "site_sakinleri_veritabani.xlsx"
+
+# --- YÖNETİCİ PANELİ (SOL MENÜ) ---
+with st.sidebar:
+    st.header("🔐 Yönetici Paneli")
+    st.write("Sadece site yönetimi kullanımı içindir.")
+    admin_pass = st.text_input("Yönetici Şifresi", type="password")
+    
+    if admin_pass == "Yonetim2026":
+        if os.path.exists(EXCEL_FILE):
+            with open(EXCEL_FILE, "rb") as file:
+                st.download_button(
+                    label="📥 Güncel Excel Tablosunu İndir",
+                    data=file,
+                    file_name="Tum_Site_Verileri.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+        else:
+            st.warning("Henüz sisteme hiç kayıt girilmemiş.")
+
 st.markdown("""
     <style>
     .main { background-color: #f8f9fa; }
@@ -33,14 +53,12 @@ st.title("🏢 Green Hill City Sitesi Bilgi Güncelleme Formu")
 st.markdown("Değerli komşularımız, site yönetimimizin iletişim ve araç altyapısını güncel tutabilmek için lütfen bu formu eksiksiz doldurunuz.")
 st.markdown("---")
 
-# Blok ve daire sayilari guncellendi (F1: 16 olarak ayarlandi)
+# Blok ve daire sayilari
 blocks_config = {
     "1A": 10, "1B": 12, "1C": 3,
     "2A": 8, "2B": 8, "2C": 16, "2D": 16, "2E": 8,
     "F1": 12, "F2": 12
 }
-
-EXCEL_FILE = "site_sakinleri_veritabani.xlsx"
 
 def load_data():
     if os.path.exists(EXCEL_FILE):
@@ -52,8 +70,6 @@ def load_data():
             "Kiracı Ad Soyad", "Kiracı Tel", "Kiracı E-posta", 
             "Araç Plaka 1", "Araç Plaka 2", "Araç Plaka 3"
         ])
-
-# --- st.form KALDIRILDI, STANDART DİNAMİK YAPI EKLENDİ ---
 
 st.subheader("1. Konum Bilgileri")
 col1, col2 = st.columns(2)
