@@ -100,59 +100,17 @@ with v_col3:
     plate_3 = st.text_input("Araç Plakası 3").upper()
 
 st.markdown("<br>", unsafe_allow_html=True)
-submitted = st.button("Bilgileri Kaydet")
-
-if submitted:
-    if not owner_name or not owner_phone:
-        st.error("Lütfen mülk sahibinin Adı Soyadı ve Telefon numarasını eksiksiz doldurun.")
-    else:
-        try:
-            sheet = get_google_sheet()
-            
-            # Tablo boşsa önce başlıkları ekle
-            if not sheet.row_values(1):
-                headers = [
-                    "Kayıt Tarihi", "Blok", "Daire No", "Mülk Sahibi Ad Soyad", 
-                    "Mülk Sahibi Tel", "Mülk Sahibi E-posta", "İkamet Durumu", 
-                    "Kiracı Ad Soyad", "Kiracı Tel", "Kiracı E-posta", 
-                    "Araç Plaka 1", "Araç Plaka 2", "Araç Plaka 3"
-                ]
-                sheet.append_row(headers)
-            
-            # Yeni veriyi satır olarak ekle
-            new_row = [
-                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                selected_block,
-                flat_number,
-                owner_name,
-                owner_phone,
-                owner_email,
-                residence_status,
-                tenant_name,
-                tenant_phone,
-                tenant_email,
-                plate_1,
-                plate_2,
-                plate_3
-            ]
-            sheet.append_row(new_row)
-            st.markdown('<div class="success-box">✅ Bilgileriniz başarıyla kaydedildi. Teşekkür ederiz!</div>', unsafe_allow_html=True)
-            
-        except Exception as e:
-            st.error(f"Sistemsel bir bağlantı hatası oluştu: {e}")
-st.markdown("<br>", unsafe_allow_html=True)
 
 # KVKK Onay Kutusu (Zorunlu Alan)
 kvkk_onay = st.checkbox("Kişisel verilerimin site yönetimi tarafından iletişim ve güvenlik amacıyla kayıt altına alınmasını onaylıyorum.")
 
-submitted = st.button("Bilgileri Kaydet")
+# Buton KVKK onayına kilitlendi (Kutucuk işaretlenmezse buton tıklanamaz)
+submitted = st.button("Bilgileri Kaydet", disabled=not kvkk_onay)
 
 if submitted:
-    # Boş alan ve KVKK kontrolü
+    # Boş alan kontrolü
     if not owner_name or not owner_phone:
         st.error("Lütfen mülk sahibinin Adı Soyadı ve Telefon numarasını eksiksiz doldurun.")
-    elif not kvkk_onay:
-        st.error("İşleme devam edebilmek için KVKK metnini onaylamanız gerekmektedir.")
     # Telefon numarası uzunluk kontrolü (Basit doğrulama)
     elif len(owner_phone.replace(" ", "")) < 10:
         st.error("Lütfen geçerli bir telefon numarası giriniz (Örn: 05XX XXX XX XX).")
