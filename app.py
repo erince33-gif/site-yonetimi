@@ -37,7 +37,7 @@ st.markdown("---")
 blocks_config = {
     "1A": 10, "1B": 12, "1C": 3,
     "2A": 8, "2B": 8, "2C": 16, "2D": 16, "2E": 8,
-    "F1": 16, "F2": 12
+    "F1": 12, "F2": 12
 }
 
 EXCEL_FILE = "site_sakinleri_veritabani.xlsx"
