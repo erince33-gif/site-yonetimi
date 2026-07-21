@@ -5,12 +5,9 @@ from datetime import datetime
 
 st.set_page_config(page_title="Site Sakini Bilgi Sistemi", page_icon="🏢", layout="centered")
 
-# Custom styling for a polished look
 st.markdown("""
     <style>
-    .main {
-        background-color: #f8f9fa;
-    }
+    .main { background-color: #f8f9fa; }
     .stButton>button {
         width: 100%;
         background-color: #2c3e50;
@@ -19,10 +16,7 @@ st.markdown("""
         border-radius: 8px;
         padding: 0.6rem;
     }
-    .stButton>button:hover {
-        background-color: #34495e;
-        color: white;
-    }
+    .stButton>button:hover { background-color: #34495e; color: white; }
     .success-box {
         padding: 1rem;
         background-color: #d4edda;
@@ -36,24 +30,15 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("🏢 Site Sakini Bilgi Güncelleme Formu")
-st.markdown("Değerli komşularımız, site yönetimimizin iletişim ve güvenlik altyapısını güncel tutabilmek için lütfen bu formu eksiksiz doldurunuz.")
+st.markdown("Değerli komşularımız, site yönetimimizin iletişim ve araç altyapısını güncel tutabilmek için lütfen bu formu eksiksiz doldurunuz.")
 st.markdown("---")
 
-# Block and apartment configuration
 blocks_config = {
-    "1A": 10,
-    "1B": 12,
-    "1C": 3,
-    "2A": 8,
-    "2B": 8,
-    "2C": 16,
-    "2D": 16,
-    "2E": 8,
-    "F1": 12,
-    "F2": 12
+    "1A": 10, "1B": 12, "1C": 3,
+    "2A": 8, "2B": 8, "2C": 16, "2D": 16, "2E": 8,
+    "F1": 12, "F2": 12
 }
 
-# Excel file path
 EXCEL_FILE = "site_sakinleri_veritabani.xlsx"
 
 def load_data():
@@ -63,8 +48,7 @@ def load_data():
         return pd.DataFrame(columns=[
             "Kayıt Tarihi", "Blok", "Daire No", "Mülk Sahibi Ad Soyad", 
             "Mülk Sahibi Tel", "Mülk Sahibi E-posta", "İkamet Durumu", 
-            "Kiracı Ad Soyad", "Kiracı Tel", "Araç Plaka 1", "Araç Plaka 2", 
-            "Evcil Hayvan", "Dairedeki Kişi Sayısı"
+            "Kiracı Ad Soyad", "Kiracı Tel", "Araç Plaka 1", "Araç Plaka 2", "Araç Plaka 3"
         ])
 
 with st.form("site_form"):
@@ -100,18 +84,14 @@ with st.form("site_form"):
         with t_col2:
             tenant_phone = st.text_input("Kiracı Cep Telefonu (05XX...)")
 
-    st.subheader("4. Araç ve Diğer Detaylar")
-    v_col1, v_col2 = st.columns(2)
+    st.subheader("4. Araç Bilgileri (Plakalar)")
+    v_col1, v_col2, v_col3 = st.columns(3)
     with v_col1:
-        plate_1 = st.text_input("Araç Plakası 1 (Örn: 34ABC123)").upper()
+        plate_1 = st.text_input("Araç Plakası 1").upper()
     with v_col2:
-        plate_2 = st.text_input("Araç Plakası 2 (varsa)").upper()
-
-    d_col1, d_col2 = st.columns(2)
-    with d_col1:
-        pet_info = st.text_input("Evcil Hayvan Durumu (Örn: 1 Kedi / Yok)")
-    with d_col2:
-        resident_count = st.number_input("Dairede Yaşayan Toplam Kişi Sayısı", min_value=1, max_value=15, value=1)
+        plate_2 = st.text_input("Araç Plakası 2").upper()
+    with v_col3:
+        plate_3 = st.text_input("Araç Plakası 3").upper()
 
     submitted = st.form_submit_button("Bilgileri Kaydet")
 
@@ -133,11 +113,9 @@ if submitted:
             "Kiracı Tel": tenant_phone if residence_status == "Kiracı oturuyor" else "",
             "Araç Plaka 1": plate_1,
             "Araç Plaka 2": plate_2,
-            "Evcil Hayvan": pet_info,
-            "Dairedeki Kişi Sayısı": resident_count
+            "Araç Plaka 3": plate_3
         }
         
-        # Check if already submitted for this block & flat, update or append
         df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
         df.to_excel(EXCEL_FILE, index=False)
         
