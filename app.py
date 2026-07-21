@@ -3,7 +3,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
 
-st.set_page_config(page_title="Site Sakini Bilgi Sistemi", page_icon="🏢", layout="centered")
+st.set_page_config(page_title="Site Sakini Bilgi Sistemi", page_icon="logo.png", layout="centered")
 
 st.markdown("""
     <style>
@@ -29,7 +29,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🏢 Green Hill City Sitesi Bilgi Güncelleme Formu")
+col1, col2 = st.columns([1, 7])
+with col1:
+    st.image("logo.png", width=80)
+with col2:
+    st.title("Green Hill City Sitesi Bilgi Güncelleme Formu")
+
 st.markdown("Değerli komşularımız, site yönetimimizin iletişim ve araç altyapısını güncel tutabilmek için lütfen bu formu eksiksiz doldurunuz.")
 st.markdown("---")
 
