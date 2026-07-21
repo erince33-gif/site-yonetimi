@@ -1,29 +1,9 @@
 import streamlit as st
-import pandas as pd
-import os
+import gspread
+from google.oauth2.service_account import Credentials
 from datetime import datetime
 
 st.set_page_config(page_title="Site Sakini Bilgi Sistemi", page_icon="🏢", layout="centered")
-
-EXCEL_FILE = "site_sakinleri_veritabani.xlsx"
-
-# --- YÖNETİCİ PANELİ (SOL MENÜ) ---
-with st.sidebar:
-    st.header("🔐 Yönetici Paneli")
-    st.write("Sadece site yönetimi kullanımı içindir.")
-    admin_pass = st.text_input("Yönetici Şifresi", type="password")
-    
-    if admin_pass == "Yonetim2026":
-        if os.path.exists(EXCEL_FILE):
-            with open(EXCEL_FILE, "rb") as file:
-                st.download_button(
-                    label="📥 Güncel Excel Tablosunu İndir",
-                    data=file,
-                    file_name="Tum_Site_Verileri.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
-        else:
-            st.warning("Henüz sisteme hiç kayıt girilmemiş.")
 
 st.markdown("""
     <style>
@@ -53,23 +33,22 @@ st.title("🏢 Green Hill City Sitesi Bilgi Güncelleme Formu")
 st.markdown("Değerli komşularımız, site yönetimimizin iletişim ve araç altyapısını güncel tutabilmek için lütfen bu formu eksiksiz doldurunuz.")
 st.markdown("---")
 
-# Blok ve daire sayilari
 blocks_config = {
     "1A": 10, "1B": 12, "1C": 3,
     "2A": 8, "2B": 8, "2C": 16, "2D": 16, "2E": 8,
     "F1": 12, "F2": 12
 }
 
-def load_data():
-    if os.path.exists(EXCEL_FILE):
-        return pd.read_excel(EXCEL_FILE)
-    else:
-        return pd.DataFrame(columns=[
-            "Kayıt Tarihi", "Blok", "Daire No", "Mülk Sahibi Ad Soyad", 
-            "Mülk Sahibi Tel", "Mülk Sahibi E-posta", "İkamet Durumu", 
-            "Kiracı Ad Soyad", "Kiracı Tel", "Kiracı E-posta", 
-            "Araç Plaka 1", "Araç Plaka 2", "Araç Plaka 3"
-        ])
+def get_google_sheet():
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
+    s_creds = dict(st.secrets["gcp_service_account"])
+    creds = Credentials.from_service_account_info(s_creds, scopes=scopes)
+    client = gspread.authorize(creds)
+    sheet_url = st.secrets["gsheets"]["url"]
+    return client.open_by_url(sheet_url).sheet1
 
 st.subheader("1. Konum Bilgileri")
 col1, col2 = st.columns(2)
@@ -122,25 +101,37 @@ if submitted:
     if not owner_name or not owner_phone:
         st.error("Lütfen mülk sahibinin Adı Soyadı ve Telefon numarasını eksiksiz doldurun.")
     else:
-        df = load_data()
-        
-        new_row = {
-            "Kayıt Tarihi": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Blok": selected_block,
-            "Daire No": flat_number,
-            "Mülk Sahibi Ad Soyad": owner_name,
-            "Mülk Sahibi Tel": owner_phone,
-            "Mülk Sahibi E-posta": owner_email,
-            "İkamet Durumu": residence_status,
-            "Kiracı Ad Soyad": tenant_name,
-            "Kiracı Tel": tenant_phone,
-            "Kiracı E-posta": tenant_email,
-            "Araç Plaka 1": plate_1,
-            "Araç Plaka 2": plate_2,
-            "Araç Plaka 3": plate_3
-        }
-        
-        df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-        df.to_excel(EXCEL_FILE, index=False)
-        
-        st.markdown('<div class="success-box">✅ Bilgileriniz başarıyla kaydedildi. Teşekkür ederiz!</div>', unsafe_allow_html=True)
+        try:
+            sheet = get_google_sheet()
+            
+            # Tablo boşsa önce başlıkları ekle
+            if not sheet.row_values(1):
+                headers = [
+                    "Kayıt Tarihi", "Blok", "Daire No", "Mülk Sahibi Ad Soyad", 
+                    "Mülk Sahibi Tel", "Mülk Sahibi E-posta", "İkamet Durumu", 
+                    "Kiracı Ad Soyad", "Kiracı Tel", "Kiracı E-posta", 
+                    "Araç Plaka 1", "Araç Plaka 2", "Araç Plaka 3"
+                ]
+                sheet.append_row(headers)
+            
+            # Yeni veriyi satır olarak ekle
+            new_row = [
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                selected_block,
+                flat_number,
+                owner_name,
+                owner_phone,
+                owner_email,
+                residence_status,
+                tenant_name,
+                tenant_phone,
+                tenant_email,
+                plate_1,
+                plate_2,
+                plate_3
+            ]
+            sheet.append_row(new_row)
+            st.markdown('<div class="success-box">✅ Bilgileriniz başarıyla kaydedildi. Teşekkür ederiz!</div>', unsafe_allow_html=True)
+            
+        except Exception as e:
+            st.error(f"Sistemsel bir bağlantı hatası oluştu: {e}")
