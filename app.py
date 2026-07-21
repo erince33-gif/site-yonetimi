@@ -35,7 +35,7 @@ with col1:
 with col2:
     st.title("Green Hill City Sitesi Bilgi Güncelleme Formu")
 
-st.markdown("Değerli komşularımız, site yönetimimizin iletişim ve araç altyapısını güncel tutabilmek için lütfen bu formu eksiksiz doldurunuz.")
+st.markdown("Değerli komşularımız, site yönetimimizin iletişim ve araç bilgisini güncel tutabilmek için lütfen bu formu eksiksiz doldurunuz. Birden fazla dairesi olan kişiler her dairesi için ayrı ayrı yapmalıdır.")
 st.markdown("---")
 
 blocks_config = {
