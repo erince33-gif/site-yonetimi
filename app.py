@@ -29,7 +29,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🏢 Site Sakini Bilgi Güncelleme Formu")
+st.title("🏢 Green Hill City Sitesi Bilgi Güncelleme Formu")
 st.markdown("Değerli komşularımız, site yönetimimizin iletişim ve araç altyapısını güncel tutabilmek için lütfen bu formu eksiksiz doldurunuz.")
 st.markdown("---")
 
